@@ -207,7 +207,7 @@ const RealisticBackground = ({ liteMode = false }: { liteMode?: boolean }) => (
       <div className="absolute left-1/2 top-1/2 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2">
         {[...Array(8)].map((_, i) => (
           <motion.div
-            key={`ray-{i}`}
+            key={`ray-${i}`}
             animate={{
               opacity: [0.10, 0.2, 0.10],
               rotate: [i * 45, i * 45 + 10, i * 45],
@@ -311,12 +311,13 @@ const RegistrationForm = () => {
   const passwordRegex = /^(?=.*[0-9]).{6,}$/;
 
   const handleNext = () => {
-    if (formData.name && passwordRegex.test(formData.password)) {
+    if (formData.name.trim() && passwordRegex.test(formData.password)) {
       setStep(2);
     }
   };
 
-  const isStep1Valid = formData.name && passwordRegex.test(formData.password);
+  const isStep1Valid =
+    formData.name.trim().length > 0 && passwordRegex.test(formData.password);
   const isStep2Valid =
     formData.fullName &&
     formData.email &&
@@ -553,6 +554,11 @@ const RegistrationForm = () => {
                         }
                       />
                     </div>
+                    {formData.password.length === 0 && (
+                      <p className="ml-1 mt-1 text-xs text-blue-200/70">
+                        Must be 6+ characters and include a number
+                      </p>
+                    )}
                     {formData.password && !passwordRegex.test(formData.password) && (
                       <p className="ml-1 mt-1 text-xs text-red-400">
                         Password must be at least 6 characters and contain a number
@@ -560,24 +566,22 @@ const RegistrationForm = () => {
                     )}
                   </div>
 
-                  <motion.button
-                    whileHover={isStep1Valid ? { scale: 1.02 } : {}}
-                    whileTap={isStep1Valid ? { scale: 0.98 } : {}}
-                    onClick={handleNext}
-                    disabled={!isStep1Valid}
-                    className={`group flex w-full items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(90deg,#1D4ED8_0%,#2563EB_42%,#22D3EE_100%)] py-4 font-bold text-white shadow-[0_18px_40px_rgba(37,99,235,0.38)] transition-all ${
-                      !isStep1Valid
-                        ? "cursor-not-allowed opacity-40 grayscale-[0.5]"
-                        : "hover:brightness-110 hover:shadow-[0_20px_50px_rgba(34,211,238,0.28)]"
-                    }`}
-                  >
-                    Join Now
-                    <ChevronRight
-                      className={`h-5 w-5 transition-transform ${
-                        isStep1Valid ? "group-hover:translate-x-1" : ""
-                      }`}
-                    />
-                  </motion.button>
+                <motion.button
+  type="button"
+  whileHover={isStep1Valid ? { scale: 1.02 } : {}}
+  whileTap={isStep1Valid ? { scale: 0.98 } : {}}
+  onClick={handleNext}
+  disabled={!isStep1Valid}
+  className={`group relative z-[40] flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(90deg,#1D4ED8_0%,#2563EB_42%,#22D3EE_100%)] py-4 font-bold text-white shadow-[0_18px_40px_rgba(37,99,235,0.38)] transition-all ${
+    !isStep1Valid
+      ? "cursor-not-allowed opacity-40 grayscale-[0.5]"
+      : "hover:brightness-110 hover:shadow-[0_20px_50px_rgba(34,211,238,0.28)]"
+  }`}
+  style={{ pointerEvents: "auto" }}
+>
+  <span className="pointer-events-none">Join Now</span>
+  <ChevronRight className="h-5 w-5 pointer-events-none transition-transform duration-300 group-hover:translate-x-1" />
+</motion.button>
                 </motion.div>
               ) : (
                 <motion.div
@@ -668,7 +672,7 @@ const RegistrationForm = () => {
                       <Phone className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white" />
                       <input
                         type="tel"
-                        placeholder="+6018 123456"
+                        placeholder="+60 12345678"
                         className="w-full rounded-2xl border border-white/18 bg-[linear-gradient(180deg,rgba(233,233,242,0.26),rgba(233,233,242,0.18))] py-4 pl-12 pr-4 text-sm leading-none text-white placeholder:text-white/55 shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_8px_20px_rgba(0,0,0,0.12)] backdrop-blur-md transition-all focus:outline-none focus:ring-2 focus:ring-white/18"
                         value={formData.phone}
                         onChange={(e) =>
@@ -720,14 +724,16 @@ const RegistrationForm = () => {
                   </motion.button>
 
                   <motion.button
-                    whileHover={{ x: -5, scale: 1.06 }}
-                    whileTap={{ scale: 0.94 }}
-                    onClick={() => setStep(1)}
-                    className="group mx-auto mt-8 flex h-12 w-12 items-center justify-center rounded-full border border-cyan-300/20 bg-white/5 text-cyan-300/60 backdrop-blur-md transition-all duration-300 hover:border-cyan-300/50 hover:bg-cyan-400/10 hover:text-cyan-200 hover:shadow-[0_0_20px_rgba(34,211,238,0.25)]"
-                    title="Back to Step 1"
-                  >
-                    <ArrowLeft className="h-6 w-6 transition-transform duration-300 group-hover:-translate-x-1" />
-                  </motion.button>
+  type="button"
+  whileHover={{ x: -5, scale: 1.06 }}
+  whileTap={{ scale: 0.94 }}
+  onClick={() => setStep(1)}
+  className="group relative z-[40] mx-auto mt-8 flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-cyan-300/20 bg-white/5 text-cyan-300/60 backdrop-blur-md transition-all duration-300 hover:border-cyan-300/50 hover:bg-cyan-400/10 hover:text-cyan-200 hover:shadow-[0_0_20px_rgba(34,211,238,0.25)]"
+  style={{ pointerEvents: "auto" }}
+  title="Back to Step 1"
+>
+  <ArrowLeft className="h-6 w-6 pointer-events-none transition-transform duration-300 group-hover:-translate-x-1" />
+</motion.button>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -758,7 +764,7 @@ const FloatingGirl = ({ liteMode = false }: { liteMode?: boolean }) => {
 
       if (regSection) {
         const regRect = regSection.getBoundingClientRect();
-        setHideBubbleAtRegistration(regRect.top < window.innerHeight - 200);
+        setHideBubbleAtRegistration(regRect.top < window.innerHeight - 40);
       }
     };
 
@@ -801,12 +807,13 @@ const FloatingGirl = ({ liteMode = false }: { liteMode?: boolean }) => {
       ?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const shouldShowBubble = showFromSteps && !hideBubbleAtRegistration && isUserActive;
+ const shouldShowBubble = showFromSteps && !hideBubbleAtRegistration && isUserActive;
+const shouldAllowGirlClick = showFromSteps && !hideBubbleAtRegistration;
 
   return (
     <div
       aria-hidden="true"
-      className={`pointer-events-none fixed bottom-[-0.8rem] right-[-0.8rem] z-[25] select-none transition-opacity duration-300 ${
+      className={`pointer-events-none fixed bottom-[-0.8rem] right-[-4.25rem] z-[25] select-none transition-opacity duration-300 sm:right-[-5.5rem] ${
         showFromSteps ? "opacity-100" : "opacity-0"
       }`}
     >
@@ -834,33 +841,46 @@ const FloatingGirl = ({ liteMode = false }: { liteMode?: boolean }) => {
         )}
       </AnimatePresence>
 
-      <div
-        className="pointer-events-auto relative cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
-        onClick={handleInteract}
-      >
-        <img
-          src={colaImg}
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 h-auto w-[clamp(16rem,32vw,40rem)] object-contain"
-          style={{
-            opacity: 0.65,
-            filter: liteMode
-              ? "brightness(1.05) drop-shadow(0 0 8px rgba(56,189,248,0.35))"
-              : "brightness(1.1) drop-shadow(0 0 10px rgba(56,189,248,0.7)) drop-shadow(0 0 20px rgba(59,130,246,0.5))",
-          }}
-        />
+     <div
+  className={`relative transition-transform duration-300 ${
+    shouldAllowGirlClick ? "hover:scale-[1.02]" : ""
+  }`}
+>
+  <button
+    type="button"
+    onClick={handleInteract}
+    disabled={!shouldAllowGirlClick}
+    className={`relative inline-block border-0 bg-transparent p-0 outline-none ${
+      shouldAllowGirlClick
+        ? "pointer-events-auto cursor-pointer"
+        : "pointer-events-none cursor-default"
+    }`}
+    style={{ width: "clamp(16rem,32vw,40rem)" }}
+    title="Register now"
+  >
+          <img
+            src={colaImg}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 h-auto w-[clamp(16rem,32vw,40rem)] object-contain"
+            style={{
+              opacity: 0.65,
+              filter: liteMode
+                ? "brightness(1.05) drop-shadow(0 0 8px rgba(56,189,248,0.35))"
+                : "brightness(1.1) drop-shadow(0 0 10px rgba(56,189,248,0.7)) drop-shadow(0 0 20px rgba(59,130,246,0.5))",
+            }}
+          />
 
-        <img
-          src={colaImg}
-          alt=""
-          className="relative h-auto w-[clamp(16rem,32vw,40rem)] object-contain drop-shadow-[0_25px_60px_rgba(0,0,0,0.35)]"
-        />
+          <img
+            src={colaImg}
+            alt=""
+            className="pointer-events-none relative h-auto w-[clamp(16rem,32vw,40rem)] object-contain drop-shadow-[0_25px_60px_rgba(0,0,0,0.35)]"
+          />
+        </button>
       </div>
     </div>
   );
 };
-
 
 const HeroCTA = () => {
   const [isActive, setIsActive] = useState(false);
