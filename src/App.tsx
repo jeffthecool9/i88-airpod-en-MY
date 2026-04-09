@@ -297,7 +297,9 @@ const RegistrationForm = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [countdown, setCountdown] = useState(8);
   const [progress, setProgress] = useState(0);
-
+const [turnstileToken, setTurnstileToken] = useState("");
+const [turnstileError, setTurnstileError] = useState("");
+  
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -318,29 +320,64 @@ const RegistrationForm = () => {
 
   const isStep1Valid =
     formData.name.trim().length > 0 && passwordRegex.test(formData.password);
-  const isStep2Valid =
-    formData.fullName &&
-    formData.email &&
-    emailRegex.test(formData.email) &&
-    formData.phone &&
-    formData.agreedToTerms;
+ const isStep2Valid =
+  !!formData.fullName &&
+  !!formData.email &&
+  emailRegex.test(formData.email) &&
+  !!formData.phone &&
+  formData.agreedToTerms &&
+  !!turnstileToken;
 
-  const handleFinalCTA = () => {
-    if (!isStep2Valid) return;
-
-    (window as any).trackCTA?.("final_complete_registration");
-
-    (window as any).trackCustomEvent?.("Final_CTA_Click", {
-      button_name: "Complete Registration",
-      step: 2,
-      username: formData.name,
-    });
-
-    setIsSuccess(true);
-    setCountdown(8);
-    setProgress(0);
+useEffect(() => {
+  (window as any).onTurnstileSuccess = (token: string) => {
+    setTurnstileToken(token);
+    setTurnstileError("");
   };
 
+  (window as any).onTurnstileError = () => {
+    setTurnstileToken("");
+    setTurnstileError("Verification failed. Please try again.");
+  };
+
+  (window as any).onTurnstileExpired = () => {
+    setTurnstileToken("");
+    setTurnstileError("Verification expired. Please verify again.");
+  };
+
+  
+  return () => {
+    delete (window as any).onTurnstileSuccess;
+    delete (window as any).onTurnstileError;
+    delete (window as any).onTurnstileExpired;
+  };
+}, []);
+  
+const handleFinalCTA = async () => {
+  if (!isStep2Valid) return;
+
+  const payload = {
+    ...formData,
+    turnstileToken,
+  };
+
+  const res = await fetch("/api/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    setTurnstileError(data.message || "Verification failed.");
+    return;
+  }
+
+  setIsSuccess(true);
+  setCountdown(8);
+  setProgress(0);
+};
+  
   useEffect(() => {
     if (!isSuccess) return;
 
@@ -707,7 +744,20 @@ const RegistrationForm = () => {
                       any time.
                     </label>
                   </div>
-
+              <div className="pt-2">
+  <div
+    className="cf-turnstile"
+    data-sitekey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+    data-theme="dark"
+    data-callback="onTurnstileSuccess"
+    data-error-callback="onTurnstileError"
+    data-expired-callback="onTurnstileExpired"
+  />
+  {turnstileError && (
+    <p className="ml-1 mt-2 text-xs text-red-400">{turnstileError}</p>
+  )}
+</div>
+                  
                   <motion.button
                     whileHover={isStep2Valid ? { scale: 1.02 } : {}}
                     whileTap={isStep2Valid ? { scale: 0.98 } : {}}
