@@ -207,7 +207,7 @@ const RealisticBackground = ({ liteMode = false }: { liteMode?: boolean }) => (
       <div className="absolute left-1/2 top-1/2 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2">
         {[...Array(8)].map((_, i) => (
           <motion.div
-            key={`ray-${i}`}
+            key={`ray-{i}`}
             animate={{
               opacity: [0.10, 0.2, 0.10],
               rotate: [i * 45, i * 45 + 10, i * 45],
@@ -1031,7 +1031,7 @@ useEffect(() => {
     { title: "Register", desc: "Create account", image: registerImg },
     {
       title: "Deposit",
-      desc: "Deposit $50 to unlock rewards",
+      desc: "Deposit RM50 to unlock rewards",
       image: depositImg,
     },
     { title: "Reward", desc: "Get 188 FS", image: playImg },
