@@ -354,7 +354,16 @@ useEffect(() => {
   
 const handleFinalCTA = async () => {
   if (!isStep2Valid) return;
+ window.trackCTA?.("final_complete_registration");
 
+  window.trackCustomEvent?.("Final_CTA_Click", {
+    button_name: "Complete Registration",
+    step: 2,
+  });
+
+  setIsSuccess(true);
+};
+  
   const payload = {
     ...formData,
     turnstileToken,
